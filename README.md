@@ -63,57 +63,53 @@ flowchart TD
 
 ---
 
-##  โครงสร้างโปรเจกต์ (Project Structure)
+## โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text
 traffy-fondue-ml/
+├── traffy_fondue_pipeline.ipynb         # สมุดงานหลัก All-in-One ครอบคลุม CRISP-DM Phase 1 ถึง Phase 6
+│
 ├── data/
-│   ├── raw/                 # ไฟล์ CSV ข้อมูลจริงรายเดือน 2023-01 ถึง 2024-06 (745 MB)
-│   ├── processed/           # โฟลเดอร์เก็บข้อมูลที่คลีนแล้ว
+│   ├── raw/                             # ไฟล์ CSV ข้อมูลจริงรายเดือน 2023-01 ถึง 2024-06 (745 MB)
+│   ├── processed/                       # ไฟล์ Parquet & CSV ที่ผ่านการคลีนแล้ว (Train, Val, Test)
 │   └── external/
-│       ├── district (1).csv             # ข้อมูลดิบ 50 เขต จาก BMA Open Data
+│       ├── district.csv                 # ข้อมูลดิบ 50 เขต จาก BMA Open Data
 │       └── bkk_population_density.csv   # สถิติความหนาแน่นประชากร 50 เขต กทม. (คำนวณจาก BMA Open Data)
 │
 ├── models/
-│   ├── lightgbm_traffy_real.txt         # ไฟล์โมเดล LightGBM ที่ฝึกสอนเสร็จสมบูรณ์
-│   └── categories.json                  # การจัดหมวดหมู่ Categorical ทั้ง 4 มิติ
+│   ├── lightgbm_traffy_real.txt         # ไฟล์โมเดลเดี่ยว LightGBM
+│   ├── categories.json                  # การจัดหมวดหมู่ Categorical 4 มิติ
+│   └── specialized/                     # โมเดลเฉพาะทางประจำฝ่าย (MoE Architecture)
+│       ├── model_yotha.txt & categories_yotha.json
+│       ├── model_cleanliness.txt & categories_cleanliness.json
+│       ├── model_thetsakit.txt & categories_thetsakit.json
+│       ├── model_environment.txt & categories_environment.json
+│       ├── model_drainage.txt & categories_drainage.json
+│       └── model_general.txt & categories_general.json
 │
 ├── outputs/
 │   └── reports/
-│       ├── real_triage_evaluation.csv   # ผลการจัดคิว Triage 5,000 เคสจริง
-│       └── demo_triage_results.csv      # ผลการรันเดโม
+│       ├── specialized_vs_single_comparison.csv # ตารางเปรียบเทียบผลลัพธ์
+│       ├── real_triage_evaluation.csv           # ผลการจัดคิว Triage 5,000 เคสจริง
+│       └── demo_triage_results.csv              # ผลการรันเดโม
 │
-├── src/
-│   ├── __init__.py
-│   ├── data_preprocessing.py            # สกัด 11 Features หน้างาน และ Clean Data
-│   ├── llm_severity.py                  # Local LLM (Ollama) & Fast Heuristic Analyzer
-│   └── decision_layer.py                # Public Impact Score & 4-Quadrant Matrix
-│
-├── train_on_real_data.py                # สคริปต์ฝึกสอน LightGBM บนข้อมูลจริง 11 Features
-├── test_real_pipeline.py                 # ทดสอบ End-to-End Pipeline บนเคสจริง กทม.
-├── run_demo.py                          # รันระบบจำลองแบบรวดเร็ว
-├── requirements.txt
-└── README.md
+├── scripts/                             # โฟลเดอร์เก็บไฟล์ Python scripts ทั้งหมด (Local only ไม่ขึ้น Git)
+├── requirements.txt                     # รายการ Dependencies ที่ใช้งาน
+├── README.md                            # คู่มือภาพรวมโปรเจกต์
+└── SYSTEM_DOCUMENTATION.md              # เอกสารอธิบายระบบฉบับละเอียด
 ```
 
 ---
 
-##  วิธีการรันระบบ (How to Run)
+## วิธีการรันระบบ (How to Run)
 
-### 1. ทดสอบรันระบบครบวงจรกับเคสจริง 5 ปัญหา (Live Ollama + LightGBM + Decision Layer)
-```bash
-python test_real_pipeline.py
-```
-
-### 2. ฝึกสอนโมเดลใหม่ด้วยข้อมูลจริงทั้งหมด (Train LightGBM บน 11 Features)
-```bash
-python train_on_real_data.py
-```
-
-### 3. รันเดโมจำลองแบบรวดเร็ว
-```bash
-python run_demo.py
-```
+เปิดและรันสมุดงาน [`traffy_fondue_pipeline.ipynb`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/traffy_fondue_pipeline.ipynb)
+ครอบคลุมกระบวนการทั้งหมดตั้งแต่ต้นจนจบตามมาตรฐาน CRISP-DM Phase 1 ถึง Phase 6:
+1. **Phase 1: Business Understanding:** ทำความเข้าใจบริบทปัญหา กทม. และกำหนดเป้าหมาย
+2. **Phase 2 & 3: Data Understanding & Preparation:** คลีนข้อมูลจริง 3 ชุด (Train, Val, Test) และสถิติประชากร
+3. **Phase 4: Modeling:** ฝึกสอนโมเดล Baseline LightGBM และชุดโมเดลเฉพาะทาง (Specialized Sub-models)
+4. **Phase 5: Evaluation:** ประเมินผลแบบ Head-to-Head บน Holdout Test Set (49,010 เคส)
+5. **Phase 6: Deployment:** คำนวณ Public Impact Score, จัดคิว Action Matrix (4 Quadrants) และจำลองรันเคสจริง
 
 ---
 
