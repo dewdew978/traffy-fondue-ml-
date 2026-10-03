@@ -52,9 +52,14 @@ SYSTEM_PROMPT = """คุณคือ AI ผู้เชี่ยวชาญด
 
 
 class LLMComplaintAnalyzer:
-    def __init__(self, ollama_model: str = "qwen3:4b", ollama_host: str = "http://localhost:11434"):
+    def __init__(self, ollama_model: str = "qwen3:4b", ollama_host: str = "http://localhost:11434", timeout: float = 3.0):
         self.ollama_model = ollama_model
         self.ollama_url = f"{ollama_host}/api/generate"
+        self.timeout = timeout
+
+    def analyze(self, text: str) -> dict:
+        """อินเทอร์เฟซหลักสำหรับการวิเคราะห์ข้อความ (Ollama + Auto Heuristic Fallback)"""
+        return self.analyze_with_ollama(text)
 
     def analyze_with_ollama(self, text: str) -> dict:
         """
@@ -88,7 +93,7 @@ class LLMComplaintAnalyzer:
                 data=json.dumps(payload).encode("utf-8"),
                 headers={"Content-Type": "application/json"}
             )
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 raw_res = data.get("response", "")
 
