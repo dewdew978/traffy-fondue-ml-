@@ -4,16 +4,30 @@
 
 ---
 
-## 📑 สารบัญ
+## สารบัญ
 1. [เป้าหมายและโจทย์ของโปรเจกต์](#1-เป้าหมายและโจทย์ของโปรเจกต์)
-2. [ภาพรวมสถาปัตยกรรมระบบ (End-to-End Architecture)](#2-ภาพรวมสถาปัตยกรรมระบบ-end-to-end-architecture)
-3. [เทคโนโลยีและเครื่องมือที่ใช้ (Tech Stack & Tools)](#3-เทคโนโลยีและเครื่องมือที่ใช้-tech-stack--tools)
-4. [ข้อมูลที่ใช้และการจัดเก็บ (Data Pipeline & Storage)](#4-ข้อมูลที่ใช้และการจัดเก็บ-data-pipeline--storage)
-5. [การคลีนข้อมูลและการสร้างตัวแปร (Data Preprocessing & Feature Engineering)](#5-การคลีนข้อมูลและการสร้างตัวแปร-data-preprocessing--feature-engineering)
-6. [การพัฒนาโมเดล Machine Learning (LightGBM & Specialized Sub-models)](#6-การพัฒนาโมเดล-machine-learning-lightgbm--specialized-sub-models)
-7. [ชั้นการตัดสินใจเชิงรุก (Actionable Decision Layer & Triage Matrix)](#7-ชั้นการตัดสินใจเชิงรุก-actionable-decision-layer--triage-matrix)
-8. [ผลการทดสอบและการวัดประสิทธิภาพ (Evaluation & Benchmark Results)](#8-ผลการทดสอบและการวัดประสิทธิภาพ-evaluation--benchmark-results)
-9. [โครงสร้างไฟล์และวิธีรันระบบ (Project Structure & How-To-Run)](#9-โครงสร้างไฟล์และวิธีรันระบบ-project-structure--how-to-run)
+2. [การเทียบเคียงตามมาตรฐาน CRISP-DM (CRISP-DM Framework Mapping)](#2-การเทียบเคียงตามมาตรฐาน-crisp-dm-crisp-dm-framework-mapping)
+3. [ภาพรวมสถาปัตยกรรมระบบ (End-to-End Architecture)](#3-ภาพรวมสถาปัตยกรรมระบบ-end-to-end-architecture)
+4. [เทคโนโลยีและเครื่องมือที่ใช้ (Tech Stack & Tools)](#4-เทคโนโลยีและเครื่องมือที่ใช้-tech-stack--tools)
+5. [ข้อมูลที่ใช้และการจัดเก็บ (Data Pipeline & Storage)](#5-ข้อมูลที่ใช้และการจัดเก็บ-data-pipeline--storage)
+6. [การคลีนข้อมูลและการสร้างตัวแปร (Data Preprocessing & Feature Engineering)](#6-การคลีนข้อมูลและการสร้างตัวแปร-data-preprocessing--feature-engineering)
+7. [การพัฒนาโมเดล Machine Learning (LightGBM & Specialized Sub-models)](#7-การพัฒนาโมเดล-machine-learning-lightgbm--specialized-sub-models)
+8. [ชั้นการตัดสินใจเชิงรุก (Actionable Decision Layer & Triage Matrix)](#8-ชั้นการตัดสินใจเชิงรุก-actionable-decision-layer--triage-matrix)
+9. [ผลการทดสอบและการวัดประสิทธิภาพ (Evaluation & Benchmark Results)](#9-ผลการทดสอบและการวัดประสิทธิภาพ-evaluation--benchmark-results)
+10. [โครงสร้างไฟล์และวิธีรันระบบ (Project Structure & How-To-Run)](#10-โครงสร้างไฟล์และวิธีรันระบบ-project-structure--how-to-run)
+
+---
+
+## 2. การเทียบเคียงตามมาตรฐาน CRISP-DM (CRISP-DM Framework Mapping)
+
+| ขั้นตอน CRISP-DM | กิจกรรมหลักในโปรเจกต์ Traffy Fondue ML | ตำแหน่งในสมุดงาน ([`traffy_fondue_pipeline.ipynb`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/traffy_fondue_pipeline.ipynb)) |
+| :--- | :--- | :--- |
+| **Phase 1: Business Understanding** | วิเคราะห์ปัญหาคิวงาน FIFO ของ กทม. และกำหนดเป้าหมายพยากรณ์วันซ่อมเสร็จล่วงหน้า ณ วินาทีแรก พร้อมจัดคิว Triage สั่งการด่วน 24 ชม. | Cell 0 (CRISP-DM Phase 1) |
+| **Phase 2: Data Understanding** | สำรวจชุดข้อมูลดิบ 18 เดือน (745 MB) และข้อมูลประชากร/พื้นที่ 50 เขต (BMA Open Data) สำรวจความสัมพันธ์ของ 11 Features หน้างาน และ Target `duration_days` | Cell 2 & Cell 4 (CRISP-DM Phase 2) |
+| **Phase 3: Data Preparation** | คลีนข้อมูล Traffy Fondue 3 ชุด (Train 2023, Val 2024 Q1, Test 2024 Q2), ตัด Outliers, คลีนชื่อเขต, สกัดฟีเจอร์ และคำนวณ `pop_density` จาก `district (1).csv` | Cell 3 & Cell 18 (CRISP-DM Phase 3) |
+| **Phase 4: Modeling** | พัฒนา Baseline LightGBM, ฝึกสอน Specialized Sub-models (MoE) 5 ฝ่าย, พัฒนา Tier 1 LLM Severity Analyzer และ Tier 2 MoE Router | Cell 6, 8, 11, 13 (CRISP-DM Phase 4) |
+| **Phase 5: Evaluation** | วัดผลเปรียบเทียบ Head-to-Head บน Test Set (49,010 เคส), คำนวณ MAE, Median AE, R2, Accuracy ±1/±2/±3 วัน, วิเคราะห์ Feature Importance (Gain & Split) | Cell 15 (CRISP-DM Phase 5) |
+| **Phase 6: Deployment** | พัฒนา Tier 3 Actionable Decision Layer, คำนวณ Public Impact Score, จัดกลุ่ม Action Triage Matrix 4 Quadrants และทดสอบรัน End-to-End Simulation สด | Cell 17, 20 (CRISP-DM Phase 6) |
 
 ---
 
@@ -37,7 +51,7 @@
 ```mermaid
 flowchart TD
     subgraph DataIngestion["1. Data Ingestion & Preprocessing"]
-        A["Traffy Fondue Open Data API<br>(18 ไฟล์ CSV: 2023-2024 รวม 800 MB)"] --> B["prepare_processed_data.py"]
+        A["Traffy Fondue Open Data API<br>(18 ไฟล์ CSV: 2023-2024 รวม 800 MB)"] --> B["scripts/prepare_processed_data.py"]
         B --> C1["train_cleaned.parquet<br>(177,726 แถว)"]
         B --> C2["val_cleaned.parquet<br>(48,885 แถว)"]
         B --> C3["test_cleaned.parquet<br>(49,010 แถว)"]
@@ -50,7 +64,7 @@ flowchart TD
     end
 
     subgraph ModelTier["3. Tier 2: Specialized Sub-models (MoE)"]
-        E1 & E3 --> F["Router (specialized_predictor.py)<br>ตรวจจับ predicted_dept"]
+        E1 & E3 --> F["Router (scripts/specialized_predictor.py)<br>ตรวจจับ predicted_dept"]
         F -->|"ฝ่ายโยธา"| M1["Model ฝ่ายโยธา (model_yotha.txt)"]
         F -->|"ฝ่ายรักษาความสะอาดฯ"| M2["Model รักษาความสะอาดฯ (model_cleanliness.txt)"]
         F -->|"ฝ่ายเทศกิจ"| M3["Model เทศกิจ (model_thetsakit.txt)"]
@@ -89,7 +103,8 @@ flowchart TD
 ## 4. ข้อมูลที่ใช้และการจัดเก็บ (Data Pipeline & Storage)
 
 ### 4.1 แหล่งที่มาของข้อมูล
-* ข้อมูลดิบดาวน์โหลดผ่าน API ทางการของ Traffy Fondue กทม. (`publicapi.traffy.in.th`)
+* **ชุดข้อมูลเปิด Traffy Fondue กรุงเทพมหานคร (BMA Open Data):** [https://data.bangkok.go.th/dataset/traffy-fondue](https://data.bangkok.go.th/dataset/traffy-fondue)
+* ข้อมูลดิบดาวน์โหลดผ่าน API ทางการของ Traffy Fondue กทม. (`publicapi.traffy.in.th`) และศูนย์ข้อมูลเปิดกรุงเทพมหานคร
 * ครอบคลุมระยะเวลา 18 เดือน:
   * **ปี 2023 (ม.ค. - ธ.ค. รวม 12 ไฟล์):** สำหรับฝึกสอน (Train Set) รวม 177,726 เคส
   * **ปี 2024 ครึ่งปีแรก (ม.ค. - มิ.ย. รวม 6 ไฟล์):**
@@ -97,11 +112,18 @@ flowchart TD
     * เดือน 4-6 (กลางปี): สำหรับทดสอบจริง (Test Set) 49,010 เคส
 
 ### 4.2 ข้อมูลเสริมภายนอก (External Data)
-* [`data/external/bkk_population_density.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/data/external/bkk_population_density.csv): สถิติความหนาแน่นประชากรจริงรายเขตของ กทม. (คน/ตร.กม.) จากสำนักบริหารการทะเบียน นำมาคำนวณเป็น `Density Factor` (1.0 ถึง 1.5) เพื่อสะท้อนผลกระทบต่อประชาชนในพื้นที่หนาแน่นสูง
+* **ชุดข้อมูล:** ข้อมูลขอบเขตสำนักงานเขตและสถิติประชากรรายเขต กรุงเทพมหานคร 50 เขต
+* **แหล่งอ้างอิงทางการ (BMA Open Data):** [https://data.bangkok.go.th/dataset/1e04f888-6287-41ce-aaa8-91f3bc6dae25/resource/712d9fd9-1d25-401c-a508-3fb49c43e3fb/download/district.csv](https://data.bangkok.go.th/dataset/1e04f888-6287-41ce-aaa8-91f3bc6dae25/resource/712d9fd9-1d25-401c-a508-3fb49c43e3fb/download/district.csv)
+* **ไฟล์ข้อมูลดิบ:** `district (1).csv` (จากศูนย์ข้อมูลเปิดกรุงเทพมหานคร)
+* **ไฟล์ที่ผ่านการคลีนและคำนวณ:** [`data/external/bkk_population_density.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/data/external/bkk_population_density.csv)
+  - ประชากรรวม: `population = num_male + num_female`
+  - ขนาดพื้นที่: `area_sqkm = area_dis` (ตารางกิโลเมตร)
+  - ความหนาแน่นประชากร: `pop_density = population / area_sqkm` (คน/ตร.กม.)
+  - นำมาคำนวณเป็น `Density Factor` (1.0 ถึง 1.5) ใน Tier 3 Actionable Decision Layer เพื่อสะท้อนผลกระทบต่อประชาชนในพื้นที่หนาแน่นสูง
 
 ### 4.3 โครงสร้าง Two-Stage Decoupled Pipeline
 ระบบเปลี่ยนจากการคลีนสดใน RAM มาเป็นสถาปัตยกรรม 2 ขั้นตอนตาม Best Practice:
-1. **Stage 1 (Data Prep):** รัน [`prepare_processed_data.py`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/prepare_processed_data.py) เพียงครั้งเดียว บันทึกไฟล์ลงใน [`data/processed/`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/data/processed/):
+1. **Stage 1 (Data Prep):** รัน [`scripts/prepare_processed_data.py`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/scripts/prepare_processed_data.py) เพียงครั้งเดียว บันทึกไฟล์ลงใน [`data/processed/`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/data/processed/):
    * `train_cleaned.parquet` (46.56 MB) & `train_cleaned.csv` (188.12 MB)
    * `val_cleaned.parquet` (12.97 MB) & `val_cleaned.csv` (52.09 MB)
    * `test_cleaned.parquet` (12.86 MB) & `test_cleaned.csv` (49.69 MB)
@@ -186,11 +208,11 @@ $$\text{Public Impact Score} = \text{Severity (1–5)} \times \text{Density Fact
 
 | ฝ่ายที่รับผิดชอบ | จำนวนเคสทดสอบ | Single MAE | Specialized MAE | Single MedAE | Specialized MedAE | ผลการพัฒนา (Improvement) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **ฝ่ายเทศกิจ** | 13,713 | 4.66 วัน | **4.63 วัน** | 1.93 วัน | **1.81 วัน** | 🟢 **แม่นยำขึ้นชัดเจน (Median ผิดพลาดเพียง 1.8 วัน)** |
-| **ฝ่ายรักษาความสะอาดฯ** | 6,830 | 4.63 วัน | **4.61 วัน** | 1.98 วัน | **1.94 วัน** | 🟢 **ดีขึ้นทั้ง MAE และ MedAE** |
-| **ฝ่ายสิ่งแวดล้อมฯ** | 4,154 | 7.86 วัน | **7.78 วัน** | 4.56 วัน | **4.38 วัน** | 🟢 **คลาดเคลื่อนลดลง ~1%** |
-| **สำนักการระบายน้ำ** | 495 | 6.18 วัน | **6.08 วัน** | 2.60 วัน | **2.59 วัน** | 🟢 **MAE ดีขึ้น +1.58%** |
-| **ฝ่ายโยธา** | 11,661 | 10.28 วัน | 10.30 วัน | 5.42 วัน | 5.71 วัน | 🟡 ใกล้เคียงเดิม (งานโยธามี Outlier เรื่องจัดซื้อจัดจ้าง) |
+| **ฝ่ายเทศกิจ** | 13,713 | 4.66 วัน | **4.63 วัน** | 1.93 วัน | **1.81 วัน** |  **แม่นยำขึ้นชัดเจน (Median ผิดพลาดเพียง 1.8 วัน)** |
+| **ฝ่ายรักษาความสะอาดฯ** | 6,830 | 4.63 วัน | **4.61 วัน** | 1.98 วัน | **1.94 วัน** |  **ดีขึ้นทั้ง MAE และ MedAE** |
+| **ฝ่ายสิ่งแวดล้อมฯ** | 4,154 | 7.86 วัน | **7.78 วัน** | 4.56 วัน | **4.38 วัน** |  **คลาดเคลื่อนลดลง ~1%** |
+| **สำนักการระบายน้ำ** | 495 | 6.18 วัน | **6.08 วัน** | 2.60 วัน | **2.59 วัน** |  **MAE ดีขึ้น +1.58%** |
+| **ฝ่ายโยธา** | 11,661 | 10.28 วัน | 10.30 วัน | 5.42 วัน | 5.71 วัน |  ใกล้เคียงเดิม (งานโยธามี Outlier เรื่องจัดซื้อจัดจ้าง) |
 
 ### 8.2 การทดสอบจริงรายเคส ([`test_specialized_system.py`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/test_specialized_system.py))
 ผลการดึงเคสจริงจาก `test_cleaned.parquet` มาทดสอบ:
@@ -228,20 +250,22 @@ traffy-fondue-ml/
 │   ├── real_triage_evaluation.csv
 │   └── demo_triage_results.csv
 │
-├── src/
+├── scripts/                             # โฟลเดอร์เก็บไฟล์ Python scripts ทั้งหมด (ไม่ถูกติดตามบน Git)
 │   ├── data_preprocessing.py            # ฟังก์ชัน Clean Data & Feature Extraction
 │   ├── specialized_predictor.py         # คลาส SpecializedBMAPredictor (MoE Router)
 │   ├── llm_severity.py                  # โมดูล Ollama LLM สำหรับสกัด Severity
-│   └── decision_layer.py                # Public Impact Score & 4 Quadrants Matrix
+│   ├── decision_layer.py                # Public Impact Score & 4 Quadrants Matrix
+│   ├── prepare_processed_data.py        # สคริปต์ Clean และบันทึกข้อมูลลง data/processed/
+│   ├── train_specialized_models.py      # สคริปต์ฝึกสอน Specialized Sub-models
+│   ├── train_on_real_data.py            # สคริปต์ฝึกสอนโมเดลเดี่ยว Single Model
+│   ├── test_specialized_system.py       # สคริปต์ทดสอบระบบทำนายจริง
+│   ├── run_demo.py                      # รันระบบจำลอง End-to-End
+│   └── download_data.py                 # สคริปต์ดาวน์โหลดข้อมูลจาก API
 │
-├── prepare_processed_data.py            # สคริปต์ Clean และบันทึกข้อมูลลง data/processed/
-├── train_specialized_models.py          # สคริปต์ฝึกสอน Specialized Sub-models
-├── train_on_real_data.py                # สคริปต์ฝึกสอนโมเดลเดี่ยว Single Model
-├── test_specialized_system.py           # สคริปต์ทดสอบระบบทำนายจริง
-├── run_demo.py                          # รันระบบจำลอง End-to-End
 ├── requirements.txt                     # รายการ Libraries ที่ใช้งาน
 ├── README.md                            # คู่มือเบื้องต้น
-└── SYSTEM_DOCUMENTATION.md              # เอกสารอธิบายระบบฉบับละเอียด (ไฟล์นี้)
+├── SYSTEM_DOCUMENTATION.md              # เอกสารอธิบายระบบฉบับละเอียด (ไฟล์นี้)
+└── traffy_fondue_pipeline.ipynb         # สมุดงาน Jupyter Notebook ฉบับสมบูรณ์ (CRISP-DM Phase 1-6)
 ```
 
 ### 9.2 ขั้นตอนการรันใช้งาน (Execution Commands)
@@ -253,15 +277,15 @@ traffy-fondue-ml/
 
 2. **คลีนและสร้างไฟล์ชุดข้อมูล (Stage 1 Data Preparation):**
    ```bash
-   python prepare_processed_data.py
+   python scripts/prepare_processed_data.py
    ```
 
 3. **ฝึกสอนและประเมินผลชุดโมเดลเฉพาะทาง (Specialized Sub-models):**
    ```bash
-   python train_specialized_models.py
+   python scripts/train_specialized_models.py
    ```
 
 4. **ทดสอบระบบทำนายจริงแบบ End-to-End:**
    ```bash
-   python test_specialized_system.py
+   python scripts/test_specialized_system.py
    ```

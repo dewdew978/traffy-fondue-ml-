@@ -9,3 +9,13 @@ __pycache__/
 data/processed/*.csv
 data/processed/*.parquet
 
+# Python scripts and modules (kept locally, not tracked/pushed to git)
+*.py
+scripts/*.py
+scripts/**/*.py
+src/*.py
+**/*.py
+
+# Duplicate download copies
+* (1).*
+

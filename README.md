@@ -4,7 +4,7 @@
 
 ---
 
-## 🏛️ สถาปัตยกรรมระบบ 3 ชั้น (3-Tier Pipeline Architecture)
+## ️ สถาปัตยกรรมระบบ 3 ชั้น (3-Tier Pipeline Architecture)
 
 ```mermaid
 flowchart TD
@@ -33,7 +33,7 @@ flowchart TD
 
 ---
 
-## 📊 ตัวแปรต้น 11 Features หน้างาน (ตัวแปร X)
+##  ตัวแปรต้น 11 Features หน้างาน (ตัวแปร X)
 
 | ลำดับ | Feature Name | ประเภท | ความสำคัญ (Gain %) | หน้าที่และความหมาย |
 | :---: | :--- | :---: | :---: | :--- |
@@ -51,7 +51,7 @@ flowchart TD
 
 ---
 
-## 📈 ผลการประเมินโมเดลกับข้อมูลจริง (Test Set 2024 กลางปี)
+##  ผลการประเมินโมเดลกับข้อมูลจริง (Test Set 2024 กลางปี)
 
 ฝึกสอนด้วยข้อมูลจริงของ กทม. 177,726 แถว (ปี 2023) และทดสอบบน Holdout Test Set ปี 2024:
 
@@ -63,7 +63,7 @@ flowchart TD
 
 ---
 
-## 📁 โครงสร้างโปรเจกต์ (Project Structure)
+##  โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text
 traffy-fondue-ml/
@@ -71,7 +71,8 @@ traffy-fondue-ml/
 │   ├── raw/                 # ไฟล์ CSV ข้อมูลจริงรายเดือน 2023-01 ถึง 2024-06 (745 MB)
 │   ├── processed/           # โฟลเดอร์เก็บข้อมูลที่คลีนแล้ว
 │   └── external/
-│       └── bkk_population_density.csv   # สถิติความหนาแน่นประชากร 50 เขต กทม.
+│       ├── district (1).csv             # ข้อมูลดิบ 50 เขต จาก BMA Open Data
+│       └── bkk_population_density.csv   # สถิติความหนาแน่นประชากร 50 เขต กทม. (คำนวณจาก BMA Open Data)
 │
 ├── models/
 │   ├── lightgbm_traffy_real.txt         # ไฟล์โมเดล LightGBM ที่ฝึกสอนเสร็จสมบูรณ์
@@ -97,7 +98,7 @@ traffy-fondue-ml/
 
 ---
 
-## 🚀 วิธีการรันระบบ (How to Run)
+##  วิธีการรันระบบ (How to Run)
 
 ### 1. ทดสอบรันระบบครบวงจรกับเคสจริง 5 ปัญหา (Live Ollama + LightGBM + Decision Layer)
 ```bash
@@ -113,3 +114,13 @@ python train_on_real_data.py
 ```bash
 python run_demo.py
 ```
+
+---
+
+## แหล่งข้อมูลอ้างอิงภายนอก (External Data Reference)
+1. **ชุดข้อมูลสถิติการแจ้งเรื่องร้องเรียน Traffy Fondue (BMA Open Data):**
+   * ลิงก์ตรง: [https://data.bangkok.go.th/dataset/traffy-fondue](https://data.bangkok.go.th/dataset/traffy-fondue)
+   * ข้อมูลเรื่องร้องเรียนของกรุงเทพมหานคร ครอบคลุม 18 เดือน (ปี 2023 - มิ.ย. 2024 รวม 275,621 รายการ)
+2. **ชุดข้อมูลสถิติประชากรและพื้นที่ 50 สำนักงานเขต (BMA Open Data):**
+   * ลิงก์ตรง: [https://data.bangkok.go.th/dataset/1e04f888-6287-41ce-aaa8-91f3bc6dae25/resource/712d9fd9-1d25-401c-a508-3fb49c43e3fb/download/district.csv](https://data.bangkok.go.th/dataset/1e04f888-6287-41ce-aaa8-91f3bc6dae25/resource/712d9fd9-1d25-401c-a508-3fb49c43e3fb/download/district.csv)
+   * นำมาคำนวณ: ประชากรรวม = num_male + num_female, ขนาดพื้นที่ = area_dis (ตร.กม.), ความหนาแน่นประชากร = ประชากรรวม / ขนาดพื้นที่
