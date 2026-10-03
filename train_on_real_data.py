@@ -40,12 +40,32 @@ from src.decision_layer import BMADecisionLayer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
+PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 REPORTS_DIR = os.path.join(BASE_DIR, "outputs", "reports")
 DENSITY_FILE = os.path.join(BASE_DIR, "data", "external", "bkk_population_density.csv")
 
 os.makedirs(MODELS_DIR, exist_ok=True)
 os.makedirs(REPORTS_DIR, exist_ok=True)
+
+
+def load_dataset(base_name, file_list, desc="Dataset"):
+    """โหลดข้อมูลที่คลีนแล้วจาก data/processed/ (Parquet / CSV) หากไม่มีจะ fallback ไปคลีนจาก raw"""
+    parquet_path = os.path.join(PROCESSED_DIR, f"{base_name}.parquet")
+    csv_path = os.path.join(PROCESSED_DIR, f"{base_name}.csv")
+
+    if os.path.exists(parquet_path):
+        print(f"[+] โหลด {desc} จาก Cleaned Parquet: {parquet_path}")
+        df = pd.read_parquet(parquet_path)
+        print(f"--> โหลด {desc} สำเร็จ: {len(df):,} แถว")
+        return df
+    elif os.path.exists(csv_path):
+        print(f"[+] โหลด {desc} จาก Cleaned CSV: {csv_path}")
+        df = pd.read_csv(csv_path, low_memory=False)
+        print(f"--> โหลด {desc} สำเร็จ: {len(df):,} แถว")
+        return df
+
+    return load_and_concat(file_list, desc)
 
 
 def load_and_concat(file_list, desc="Dataset"):
@@ -75,10 +95,10 @@ def main():
     val_files = [os.path.join(RAW_DIR, f"bangkok_2024-0{m}.csv") for m in [1, 2, 3]]
     test_files = [os.path.join(RAW_DIR, f"bangkok_2024-0{m}.csv") for m in [4, 5, 6]]
 
-    # 1. โหลดและทำความสะอาดข้อมูลทั้ง 3 ชุด
-    train_df = load_and_concat(train_files, "Train Set (ปี 2023)")
-    val_df = load_and_concat(val_files, "Validation Set (ต้นปี 2024)")
-    test_df = load_and_concat(test_files, "Test Set (กลางปี 2024)")
+    # 1. โหลดข้อมูล (ดึงจาก Cleaned Parquet ใน data/processed/ ด้วยความเร็วสูง)
+    train_df = load_dataset("train_cleaned", train_files, "Train Set (ปี 2023)")
+    val_df = load_dataset("val_cleaned", val_files, "Validation Set (ต้นปี 2024)")
+    test_df = load_dataset("test_cleaned", test_files, "Test Set (กลางปี 2024)")
 
     # 2. จัดเตรียม 11 Features
     feature_cols = [

@@ -4,3 +4,8 @@ __pycache__/
 .pytest_cache/
 .vscode/
 .idea/
+
+# Large datasets
+data/processed/*.csv
+data/processed/*.parquet
+
