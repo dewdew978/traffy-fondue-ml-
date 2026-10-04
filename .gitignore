@@ -6,8 +6,10 @@ __pycache__/
 .idea/
 
 # Large datasets
+data/raw/*.csv
 data/processed/*.csv
 data/processed/*.parquet
+data/processed/backup_2023_2024/
 
 # Python scripts and modules (kept locally, not tracked/pushed to git)
 *.py

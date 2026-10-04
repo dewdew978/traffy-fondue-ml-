@@ -53,10 +53,10 @@
 ```mermaid
 flowchart TD
     subgraph DataIngestion["1. Data Ingestion & Preprocessing"]
-        A["Traffy Fondue Open Data<br>(18 ไฟล์ CSV: 2023-2024 รวม ~800 MB)"] --> B["traffy_fondue_pipeline.ipynb (Cell 3-5)"]
-        B --> C1["train_cleaned.parquet<br>(177,726 เคส)"]
-        B --> C2["val_cleaned.parquet<br>(48,885 เคส)"]
-        B --> C3["test_cleaned.parquet<br>(49,010 เคส)"]
+        A["Traffy Fondue Open Data API<br>(22 ไฟล์ CSV: 2025-2026 รวม ~1.2 GB)"] --> B["traffy_fondue_pipeline.ipynb (Cell 3-5)"]
+        B --> C1["train_cleaned.parquet<br>(208,744 เคส: 2025 ม.ค.-ต.ค.)"]
+        B --> C2["val_cleaned.parquet<br>(31,644 เคส: 2025 พ.ย.-ธ.ค.)"]
+        B --> C3["test_cleaned.parquet<br>(178,182 เคส: 2026 ม.ค.-ต.ค.)"]
     end
 
     subgraph FeatureTier["2. Tier 1: Feature Extraction ณ วินาทีแรก"]
@@ -104,12 +104,13 @@ flowchart TD
 ## 5. ข้อมูลที่ใช้และการจัดเก็บ (Data Pipeline & External Data Enrichment)
 
 ### 5.1 แหล่งที่มาของข้อมูลหลัก
-* **ชุดข้อมูลเปิด Traffy Fondue กรุงเทพมหานคร (BMA Open Data):** [https://data.bangkok.go.th/dataset/traffy-fondue](https://data.bangkok.go.th/dataset/traffy-fondue)
-* ครอบคลุมระยะเวลา 18 เดือน:
-  * **ปี 2023 (ม.ค. - ธ.ค. รวม 12 ไฟล์):** สำหรับฝึกสอน (Train Set) รวม 177,726 เคส
-  * **ปี 2024 ครึ่งปีแรก (ม.ค. - มิ.ย. รวม 6 ไฟล์):**
-    * เดือน 1-3 (ต้นปี): สำหรับตรวจสอบ (Validation Set) 48,885 เคส
-    * เดือน 4-6 (กลางปี): สำหรับทดสอบจริง (Test Set) 49,010 เคส
+* **ชุดข้อมูลเปิด Traffy Fondue กรุงเทพมหานคร (BMA Open Data API):**
+  * API ดาวน์โหลดข้อมูลรายเดือน: `https://publicapi.traffy.in.th/teamchadchart-stat-api/download/bangkok_monthly`
+  * แค็ตตาล็อกไฟล์ดิบ: [`data/raw/bangkok_monthly_index.html`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/data/raw/bangkok_monthly_index.html)
+* ครอบคลุมชุดข้อมูล 22 ไฟล์รายเดือน (~1.2 GB):
+  * **ปี 2025 (ม.ค. - ต.ค. รวม 10 ไฟล์):** สำหรับฝึกสอน (Train Set) รวม **208,744 เคส**
+  * **ปี 2025 (พ.ย. - ธ.ค. รวม 2 ไฟล์):** สำหรับตรวจสอบ (Validation Set) รวม **31,644 เคส**
+  * **ปี 2026 (ม.ค. - ต.ค. รวม 10 ไฟล์):** สำหรับทดสอบจริง (Out-of-Time Test Set) รวม **178,182 เคส**
 
 ### 5.2 การเชื่อมโยงข้อมูลเสริมภายนอก (External Data Enrichment)
 * **ชุดข้อมูล:** ข้อมูลขอบเขตสำนักงานเขตและสถิติประชากรรายเขต กรุงเทพมหานคร 50 เขต
@@ -188,42 +189,42 @@ $$\text{Public Impact Score} = \text{Severity (1–5)} \times \text{Density Fact
 
 ## 9. ผลการทดสอบและการวัดประสิทธิภาพ (Phase 5: Evaluation & Benchmark Results)
 
-ทดสอบประเมินบนชุดข้อมูลทดสอบจริง Unseen Test Set (กลางปี 2024 เดือน 4-6 รวม **49,010 เคส**):
+ทดสอบประเมินบนชุดข้อมูลทดสอบจริง Unseen Test Set (ปี 2026 ม.ค. - ต.ค. รวม **178,182 เคส**):
 
 ### 9.1 ภาพรวม Benchmark ทั้งหมด (Overall Benchmark)
 ไฟล์ CSV สรุปผล: [`outputs/reports/phase5_benchmark_overall.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_benchmark_overall.csv)
 
 | ตัวชี้วัด (Metric) | Single Model | Specialized Models | ส่วนต่าง (Diff) |
 | :--- | :---: | :---: | :---: |
-| **MAE (ความคลาดเคลื่อนเฉลี่ย)** | **7.06 วัน** | 7.08 วัน | -0.02 วัน |
-| **Median AE (มัธยฐานความคลาดเคลื่อน)** | **3.03 วัน** | 3.17 วัน | -0.13 วัน |
-| **RMSE (รากที่สองคลาดเคลื่อนกำลังสอง)** | 12.43 วัน | **12.41 วัน** | +0.02 วัน |
-| **ความแม่นยำในกรอบ ±1 วัน (24 ชม.)** | 17.97% | **19.36%** | **+1.39%** |
-| **ความแม่นยำในกรอบ ±2 วัน (48 ชม.)** | 35.40% | **36.21%** | **+0.81%** |
-| **ความแม่นยำในกรอบ ±3 วัน** | **49.80%** | 49.65% | +0.15% |
+| **MAE (ความคลาดเคลื่อนเฉลี่ย)** | 7.87 วัน | **7.86 วัน** | -0.00 วัน |
+| **Median AE (มัธยฐานความคลาดเคลื่อน)** | **3.59 วัน** | 3.62 วัน | +0.03 วัน |
+| **RMSE (รากที่สองคลาดเคลื่อนกำลังสอง)** | 13.10 วัน | **13.09 วัน** | -0.01 วัน |
+| **ความแม่นยำในกรอบ ±1 วัน (24 ชม.)** | 18.40% | **18.77%** | **+0.37%** |
+| **ความแม่นยำในกรอบ ±2 วัน (48 ชม.)** | 33.77% | **33.95%** | **+0.18%** |
+| **ความแม่นยำในกรอบ ±3 วัน** | **44.86%** | 44.84% | -0.02% |
 
 ### 9.2 ผลการเปรียบเทียบความแม่นยำรายหน่วยงาน (Department Benchmark)
 ไฟล์ CSV สรุปผล: [`outputs/reports/phase5_benchmark_departments.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_benchmark_departments.csv)
 
 | หน่วยงาน | จำนวนเคส | Single MAE (วัน) | Spec MAE (วัน) | Single MedAE (วัน) | Spec MedAE (วัน) | MAE Improvement (%) | โมเดลที่แม่นยำกว่า |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **ฝ่ายเทศกิจ** | 13,713 | 4.67 | **4.60** | 1.95 | **1.76** | **+1.50%** | **Specialized** (MedAE ต่ำสุด) |
-| **ฝ่ายโยธา** | 11,661 | 10.38 | **10.34** | 5.61 | **5.45** | **+0.39%** | **Specialized** |
-| **สำนักงานเขตทั่วไป** | 9,579 | **7.16** | 7.39 | **2.88** | 3.52 | -3.21% | **Single** |
-| **ฝ่ายรักษาความสะอาดฯ**| 6,830 | 4.70 | **4.67** | 2.05 | **1.97** | **+0.64%** | **Specialized** |
-| **ฝ่ายสิ่งแวดล้อมฯ** | 4,154 | 7.82 | **7.73** | 4.49 | **4.20** | **+1.15%** | **Specialized** |
-| **สำนักการจราจรและขนส่ง**| 1,524 | **8.85** | 9.01 | **3.82** | 4.15 | -1.81% | **Single** |
-| **การไฟฟ้านครหลวง** | 768 | **10.60** | 10.75 | 6.70 | **6.38** | -1.42% | **Single** |
-| **สำนักการระบายน้ำ** | 495 | 6.18 | **6.10** | 2.62 | **2.49** | **+1.29%** | **Specialized** |
-| **การประปานครหลวง** | 286 | 11.28 | **11.20** | 4.45 | **4.22** | **+0.71%** | **Specialized** |
+| **ฝ่ายโยธา** | 53,965 | 9.70 | **9.69** | **5.57** | 5.70 | +0.11% | **Specialized** |
+| **ฝ่ายเทศกิจ** | 46,034 | **6.93** | 6.98 | **2.64** | 2.69 | -0.73% | **Single** |
+| **ฝ่ายรักษาความสะอาดฯ** | 28,542 | 5.30 | **5.28** | 1.90 | **1.87** | +0.25% | **Specialized** (MedAE ต่ำสุด) |
+| **สำนักงานเขตทั่วไป** | 22,151 | **7.27** | 7.28 | **3.32** | 3.34 | -0.05% | **Single** |
+| **ฝ่ายสิ่งแวดล้อมฯ** | 17,165 | 9.19 | **9.12** | 5.06 | **4.97** | +0.86% | **Specialized** |
+| **สำนักการจราจรและขนส่ง** | 5,702 | 8.39 | **8.22** | 4.40 | **4.12** | +2.08% | **Specialized** |
+| **การไฟฟ้านครหลวง** | 2,035 | **9.78** | 9.92 | 4.89 | **4.80** | -1.46% | **Single** |
+| **สำนักการระบายน้ำ** | 1,494 | 8.50 | **8.23** | 4.47 | **4.07** | +3.19% | **Specialized** |
+| **การประปานครหลวง** | 1,094 | **8.00** | 8.17 | **3.85** | 3.88 | -2.13% | **Single** |
 
 > **ข้อค้นพบสำคัญ (Key Insight):**
-> การเพิ่ม **5-Fold OOF Target Encoding (`te_dist_dept`)** และ **ระดับแขวง (`subdistrict`)** ส่งผลให้โมเดลเฉพาะทาง (Specialized Models) มีความแม่นยำสูงขึ้นชัดเจน โดยเฉพาะ **ฝ่ายเทศกิจ MedAE ลดลงเหลือเพียง 1.76 วัน** และ **ภาพรวมความแม่นยำในกรอบ 24 ชั่วโมงพุ่งขึ้นสู่ 19.36%**
+> โมเดลที่ฝึกสอนด้วยข้อมูลปี 2025 (208,744 เคส) และทดสอบบนปี 2026 ทั้งปี (178,182 เคส) สามารถรักษาความแม่นยำในกรอบ 24 ชั่วโมงได้ถึง **18.77%** และกรอบ 48 ชม. ได้ถึง **33.95%** โดย **ฝ่ายรักษาความสะอาดฯ ทำ Median AE ได้ดีเยี่ยมเพียง 1.87 วัน** และ **ฝ่ายเทศกิจทำ Median AE ได้เพียง 2.64 วัน**
 
 ### 9.3 สรุปรายการไฟล์ผลลัพธ์ CSV ทั้งหมดใน `outputs/reports/`
-1. [`phase5_benchmark_departments.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_benchmark_departments.csv) : ตารางเปรียบเทียบผลความแม่นยำรายหน่วยงาน
+1. [`phase5_benchmark_departments.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_benchmark_departments.csv) : ตารางเปรียบเทียบผลความแม่นยำรายหน่วยงาน (178,182 เคส)
 2. [`phase5_benchmark_overall.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_benchmark_overall.csv) : ตารางสรุปภาพรวม 6 ตัวชี้วัดสถิติ
-3. [`phase5_test_predictions.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_test_predictions.csv) : ผลการทำนายรายเคสทั้ง 49,010 แถว
+3. [`phase5_test_predictions.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/phase5_test_predictions.csv) : ผลการทำนายรายเคสครบ 178,182 แถว
 4. [`real_triage_evaluation.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/real_triage_evaluation.csv) : ผลการประเมิน 5,000 เคส พร้อมการจัดกลุ่ม Triage Matrix
 5. [`demo_triage_results.csv`](file:///C:/Users/thewh/Downloads/traffy-fondue-ml/outputs/reports/demo_triage_results.csv) : ผลการทดสอบจำลอง 200 เคสตัวอย่าง
 
